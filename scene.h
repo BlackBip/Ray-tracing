@@ -12,7 +12,7 @@ class Scene {
     Camera camera;
     Shape* shapes;
     Ray3f source;
-    Scene(Camera camera_, Shape* shapes_,Ray3f source_);
+    Scene(Camera camera_, Shape* shapes_, Ray3f source_);
     void render(int width, int height, std::string filename);
 };
 

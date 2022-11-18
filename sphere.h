@@ -9,6 +9,7 @@
 class Sphere : public Shape {
   public:
     Sphere(Vector3f origin_, float radius_, Material matter_);
+    Sphere() = default;
     Vector3f origin;
     float radius;
     bool isHit(Ray3f ray) const; 

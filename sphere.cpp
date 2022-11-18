@@ -17,7 +17,7 @@ bool Sphere::isHit(Ray3f ray) const {
   Vector3f c = origin;
   float r = radius;
   float delta = pow(dot_product(u_hat,o-c),2) - (pow(norm(o-c),2)+pow(r,2));
-  return delta>0; // voir pour mettre un 1e-3 ou quoi
+  return (delta>0); // voir pour mettre un 1e-3 ou quoi
 }
 
 // https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection

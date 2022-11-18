@@ -30,6 +30,10 @@ float norm (const Vector3f &v) {
   return sqrt(pow(v.x,2)+pow(v.y,2)+pow(v.z,2));
 }
 
+float dot_product (const Vector3f &v1, const Vector3f &v2) {
+  return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+}
+
 Vector3f operator+ (const Vector3f &v1, const Vector3f &v2) {
   return Vector3f(v1)+=v2;
 }

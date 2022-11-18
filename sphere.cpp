@@ -38,7 +38,7 @@ Ray3f Sphere::reflect(Ray3f ray) const {
     intersection = o + d2*u_hat;
   }
   Vector3f N = c - intersection;
-  return Ray3f(intersection+N, -2*dot_product(u_hat, N)*N+u_hat); // le +N est surement porteur
+  return Ray3f(intersection, -2*dot_product(u_hat, N)*N+u_hat);
 }
 
 std::ostream & operator<< (std::ostream &st, const Sphere &s) {

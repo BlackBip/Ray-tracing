@@ -8,6 +8,7 @@ class Ray3f {
   public:
     Vector3f origin;
     Vector3f direction;
+    Ray3f() = default;
     Ray3f(Vector3f origin_, Vector3f direction_);
 };
 

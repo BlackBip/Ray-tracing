@@ -1,6 +1,6 @@
 #include "material.h"
 
-Material::Material(float r_, float v_,float b_,float shininess_) {
+Material::Material(float r_, float v_, float b_, float shininess_) {
   r = r_;
   v = v_;
   b = b_;

@@ -10,6 +10,7 @@ class Material {
     float b;
     float shininess;
     Material(float r_, float v_,float b_,float shininess_);
+    Material() = default;
 };
 
 std::ostream & operator<< (std::ostream &st, const Material &m);

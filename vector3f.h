@@ -17,6 +17,7 @@ class Vector3f {
 };
 
 std::ostream & operator<< (std::ostream &st, const Vector3f &v);
+float norm (const Vector3f &v);
 
 Vector3f operator+ (const Vector3f &v1, const Vector3f &v2);
 Vector3f operator- (const Vector3f &v1, const Vector3f &v2);

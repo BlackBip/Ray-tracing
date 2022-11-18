@@ -1,3 +1,4 @@
+#include <cmath>
 #include "vector3f.h"
 
 Vector3f::Vector3f(float x_, float y_, float z_) {
@@ -25,20 +26,24 @@ Vector3f & Vector3f::operator/=(float f) {
   return *this *= 1./f;
 }
 
+float norm (const Vector3f &v) {
+  return sqrt(pow(v.x,2)+pow(v.y,2)+pow(v.z,2));
+}
+
 Vector3f operator+ (const Vector3f &v1, const Vector3f &v2) {
-    return Vector3f(v1)+=v2;
+  return Vector3f(v1)+=v2;
 }
 
 Vector3f operator- (const Vector3f &v1, const Vector3f &v2) {
-    return Vector3f(v1)-=v2;
+  return Vector3f(v1)-=v2;
 }
 
 Vector3f operator* (const float &f, const Vector3f &v) {
-    return Vector3f(v)*=f;
+  return Vector3f(v)*=f;
 }
 
 Vector3f operator/ (const Vector3f &v, const float &f) {
-    return Vector3f(v)/=f;
+  return Vector3f(v)/=f;
 }
 
 std::ostream & operator<< (std::ostream &st, const Vector3f &v) {

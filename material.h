@@ -6,10 +6,10 @@
 class Material {
   public:
     float r;
-    float v;
+    float g;
     float b;
     float shininess;
-    Material(float r_, float v_,float b_,float shininess_);
+    Material(float r_, float g_,float b_,float shininess_);
 };
 
 std::ostream & operator<< (std::ostream &st, const Material &m);

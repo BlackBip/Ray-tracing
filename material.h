@@ -2,14 +2,13 @@
 #define MATERIAL_H
 
 #include <ostream>
+#include "color.h"
 
 class Material {
   public:
-    float r;
-    float g;
-    float b;
+    Color c;
     float shininess;
-    Material(float r_, float g_,float b_,float shininess_);
+    Material(Color c_, float shininess_);
     Material() = default;
 };
 

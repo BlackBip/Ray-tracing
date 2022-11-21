@@ -18,5 +18,6 @@ class Scene {
 };
 
 std::ostream & operator<< (std::ostream &st, const Scene &s);
+void save(Color **image, int width, int height);
 
 #endif

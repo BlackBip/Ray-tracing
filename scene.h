@@ -10,9 +10,10 @@
 class Scene {
   public:
     Camera camera;
-    Shape* shapes;
+    Shape** shapes;
     Ray3f source;
-    Scene(Camera camera_, Shape* shapes_, Ray3f source_);
+    int nb_shapes;
+    Scene(Camera camera_, Shape** shapes_, Ray3f source_, int nb_shapes);
     void render(int width, int height, std::string filename);
 };
 

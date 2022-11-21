@@ -1,12 +1,12 @@
 #include "scene.h"
 
-Scene::Scene(Camera camera_, Shape* shapes_, Ray3f source_) {
+Scene::Scene(Camera camera_, Shape** shapes_, Ray3f source_) {
   camera = camera_;
   shapes = shapes_;
   source = source_;
 }
 
-void render(int width, int height, std::string filename){
+void Scene::render(int width, int height, std::string filename){
     //TODO
 }
 

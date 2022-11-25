@@ -8,13 +8,15 @@
 #include "ray3f.h"
 
 class Scene {
+  private:
+    Ray3f computeVect(int i, int j, int width, int height);
   public:
     Camera camera;
     Shape** shapes;
-    Ray3f source;
+    Vector3f source;
     int nb_shapes;
-    Scene(Camera camera_, Shape** shapes_, Ray3f source_,int nb_shapes);
-    void render(int width, int height, std::string filename);
+    Scene(Camera camera_, Shape** shapes_, Vector3f source_, int nb_shapes);
+    void render(int width, int height, std::string filename, int bounces);
 };
 
 std::ostream & operator<< (std::ostream &st, const Scene &s);

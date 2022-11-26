@@ -3,7 +3,6 @@
 #include "shape.h"
 #include "vector3f.h"
 #include <cmath>
-#include <iostream>
 #include <SDL2/SDL.h>
 
 Scene::Scene(Camera camera_, Shape** shapes_, Vector3f source_, int nb_shapes_) {
@@ -51,7 +50,8 @@ void Scene::render(int width, int height, std::string filename, int bounces){
             }
           }
           delete [] hit;
-          image[i][j] += coef * isEnlightened(shapes, nb_shapes, lastShape, source, reflexion.origin) * (1-closest_shape->matter.shininess) * closest_shape->matter.c;
+          // isEnlightened(shapes, nb_shapes, closest_shape, source, reflexion.origin)
+          image[i][j] += coef * isEnlightened(shapes, nb_shapes, closest_shape, source, reflexion.origin) * (1-closest_shape->matter.shininess) * closest_shape->matter.c;
           coef *= closest_shape->matter.shininess;
           lastShape = closest_shape;
           ray = reflexion;
@@ -65,9 +65,9 @@ void Scene::render(int width, int height, std::string filename, int bounces){
 
 Ray3f Scene::computeVect(int i, int j, int width, int height){
   Vector3f t = camera.direction/norm(camera.direction);
-  Vector3f v = Vector3f(0,1,0); // à revoir
+  Vector3f v = Vector3f(0,1,0); // à fix pour tourner la cam
   Vector3f b = Vector3f(0,0,1);
-  float gx = tan(camera.fov/2); // aussi
+  float gx = tan(camera.fov/2);
   float gy = gx*(height-1)/(width-1);
   Vector3f qx = (2*gx)/(width-1)*b;
   Vector3f qy = (2*gy)/(height-1)*v;

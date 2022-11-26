@@ -46,6 +46,9 @@ bool Quad::isHit(Ray3f ray) const {
   if (tzmax < tmax) 
       tmax = tzmax;
 
+  if (tmin < 0)
+    return false;
+
   return true;
 } // CHANGER LE CODE EST VOLE
 

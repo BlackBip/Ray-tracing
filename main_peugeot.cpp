@@ -6,20 +6,30 @@
 #include "material.h"
 #include "shape.h"
 #include "camera.h"
+#include "sphere.h"
 #include "scene.h"
 
 int main() {
-  Camera camera(Vector3f(0.,0.,0.), Vector3f(1.,0.,0.), 3.14/2.);
+  Camera camera(Vector3f(0.,0.,0.), Vector3f(1.,0.,0.), 3.14/1.5);
 
-  Material m1(Color(0.5,0.5,0.5),1.);
-  Quad ground(Vector3f(-1000.,-1000.,-1000.), Vector3f(2000.,0.,0.), Vector3f(0.,1.,0.), Vector3f(0.,0.,2000.), m1);
-  Quad roof(Vector3f(-1000.,1000.,-1000.), Vector3f(2000.,0.,0.), Vector3f(0.,1.,0.), Vector3f(0.,0.,2000.), m1);
-  Quad w1(Vector3f(1000.,-1000.,-1000.), Vector3f(1.,0.,0.), Vector3f(0.,2000.,0.), Vector3f(0.,0.,2000.), m1);
-  Quad w2(Vector3f(-1000.,-1000.,-1000.), Vector3f(1.,0.,0.), Vector3f(0.,2000.,0.), Vector3f(0.,0.,2000.), m1);
-  Quad w3(Vector3f(-1000.,-1000.,1000.), Vector3f(2000.,0.,0.), Vector3f(0.,2000.,0.), Vector3f(0.,0.,1.), m1);
-  Quad w4(Vector3f(-1000.,-1000.,-1000.), Vector3f(2000.,0.,0.), Vector3f(0.,2000.,0.), Vector3f(0.,0.,1.), m1);
-  Vector3f light(0.,800.,0.);
-  int nb_shapes = 6;
+  Material m1(Color(1.,0.,0.),0.2); // plafond
+  Material m2(Color(0.,1.,0.),0.2); // sol
+  Material m3(Color(0.,0.,1.),0.2); // mur devant
+  Material m4(Color(1.,1.,0.),0.2); // mur arrière (pour rélexion)
+  Material m5(Color(1.,0.,1.),0.2); // mur droit
+  Material m6(Color(0.,1.,1.),0.2); // mur gauche
+  Material m7(Color(1.,1.,1.),0.8); // sphere
+  Material m8(Color(1.0,1.0,1.0),0.1); // cube
+  Quad ground(Vector3f(-100.,-100.,-100.), Vector3f(200.,0.,0.), Vector3f(0.,1.,0.), Vector3f(0.,0.,200.), m1);
+  Quad roof(Vector3f(-100.,100.,-100.), Vector3f(200.,0.,0.), Vector3f(0.,1.,0.), Vector3f(0.,0.,200.), m2);
+  Quad w1(Vector3f(100.,-100.,-100.), Vector3f(1.,0.,0.), Vector3f(0.,200.,0.), Vector3f(0.,0.,200.), m3);
+  Quad w2(Vector3f(-100.,-100.,-100.), Vector3f(1.,0.,0.), Vector3f(0.,200.,0.), Vector3f(0.,0.,200.), m4);
+  Quad w3(Vector3f(-100.,-100.,100.), Vector3f(200.,0.,0.), Vector3f(0.,200.,0.), Vector3f(0.,0.,1.), m5);
+  Quad w4(Vector3f(-100.,-100.,-100.), Vector3f(200.,0.,0.), Vector3f(0.,200.,0.), Vector3f(0.,0.,1.), m6);
+  Sphere s(Vector3f(70.,-15.,-15.), 20., m7);
+  Quad cube(Vector3f(65.,30.,30.),  Vector3f(30.,0.,0.), Vector3f(0.,30.,0.), Vector3f(0.,0.,30.), m8);
+  Vector3f light(0.,-80.,-40.);
+  int nb_shapes = 8;
   Shape** listS = new Shape*[nb_shapes];
   listS[0] = &ground;
   listS[1] = &roof;
@@ -27,8 +37,10 @@ int main() {
   listS[3] = &w2;
   listS[4] = &w3;
   listS[5] = &w4;
+  listS[6] = &s;
+  listS[7] = &cube;
   Scene sc(camera, listS, light, nb_shapes);
-  sc.render(10, 10, "test", 1);
+  sc.render(250, 250, "test", 10);
 
   return 0;
 }

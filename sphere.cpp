@@ -12,33 +12,29 @@ Sphere::Sphere(Vector3f origin_, float radius_, Material matter_) {
 
 // https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
 bool Sphere::isHit(Ray3f ray) const {
-  Vector3f o = ray.origin;
-  Vector3f u = ray.direction;
-  Vector3f c = origin;
-  float r = radius;
-  float delta = pow(dot_product(u,o-c),2) - (pow(norm(o-c),2)-pow(r,2));
+  delta = pow(dot_product(ray.direction,ray.origin-origin),2) - (pow(norm(ray.origin-origin),2)-pow(radius,2));
+  isHitCalled = true;
   return (delta>0); // voir pour mettre un 1e-3 ou quoi
 }
 
 // https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
 // http://www.3dkingdoms.com/weekly/weekly.php?a=2
 Ray3f Sphere::reflect(Ray3f ray) const {
-  Vector3f o = ray.origin;
-  Vector3f u = ray.direction;
-  Vector3f c = origin;
-  float r = radius;
-  float delta = pow(dot_product(u,o-c),2) - (pow(norm(o-c),2)-pow(r,2));
-  float d1 = -dot_product(u,o-c)+sqrt(delta);
-  float d2 = -dot_product(u,o-c)-sqrt(delta);
+  if (!isHitCalled)
+    throw "isHit needs to be called first";
+
+  isHitCalled = false;
+
+  float d1 = -dot_product(ray.direction,ray.origin-origin)-sqrt(delta);
+  float d2 = -dot_product(ray.direction,ray.origin-origin)+sqrt(delta);
   Vector3f intersection;
-  if (abs(d1)<abs(d2)) {
-    intersection = o + d1*u;
-  }
-  else {
-    intersection = o + d2*u;
-  }
-  Vector3f N = c - intersection;
-  return Ray3f(intersection, -2*dot_product(u, N)*N+u);
+  if (d1>0)
+    intersection = ray.origin + d1*ray.direction;
+  else
+    intersection = ray.origin + d2*ray.direction;
+
+  Vector3f N = origin - intersection;
+  return Ray3f(intersection, -2*dot_product(ray.direction, N)*N+ray.direction);
 }
 
 std::ostream & operator<< (std::ostream &st, const Sphere &s) {

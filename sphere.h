@@ -7,6 +7,9 @@
 #include "material.h"
 
 class Sphere : public Shape {
+  private:
+    mutable float delta;
+    mutable bool isHitCalled;
   public:
     Sphere(Vector3f origin_, float radius_, Material matter_);
     Sphere() = default;

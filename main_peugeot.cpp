@@ -10,7 +10,7 @@
 #include "scene.h"
 
 int main() {
-  Camera camera(Vector3f(0.,0.,0.), Vector3f(1.,0.,0.), 3.14/1.5);
+  Camera camera(Vector3f(-70.,0.,0.), Vector3f(1.,0.,0.), 3.14/2);
 
   Material m1(Color(1.,0.,0.),0.2); // plafond
   Material m2(Color(0.,1.,0.),0.2); // sol
@@ -20,15 +20,18 @@ int main() {
   Material m6(Color(0.,1.,1.),0.2); // mur gauche
   Material m7(Color(1.,1.,1.),0.8); // sphere
   Material m8(Color(1.0,1.0,1.0),0.1); // cube
-  Quad ground(Vector3f(-100.,-100.,-100.), Vector3f(200.,0.,0.), Vector3f(0.,1.,0.), Vector3f(0.,0.,200.), m1);
-  Quad roof(Vector3f(-100.,100.,-100.), Vector3f(200.,0.,0.), Vector3f(0.,1.,0.), Vector3f(0.,0.,200.), m2);
-  Quad w1(Vector3f(100.,-100.,-100.), Vector3f(1.,0.,0.), Vector3f(0.,200.,0.), Vector3f(0.,0.,200.), m3);
-  Quad w2(Vector3f(-100.,-100.,-100.), Vector3f(1.,0.,0.), Vector3f(0.,200.,0.), Vector3f(0.,0.,200.), m4);
-  Quad w3(Vector3f(-100.,-100.,100.), Vector3f(200.,0.,0.), Vector3f(0.,200.,0.), Vector3f(0.,0.,1.), m5);
-  Quad w4(Vector3f(-100.,-100.,-100.), Vector3f(200.,0.,0.), Vector3f(0.,200.,0.), Vector3f(0.,0.,1.), m6);
-  Sphere s(Vector3f(70.,-15.,-15.), 20., m7);
-  Quad cube(Vector3f(65.,30.,30.),  Vector3f(30.,0.,0.), Vector3f(0.,30.,0.), Vector3f(0.,0.,30.), m8);
+
+  Quad ground(Vector3f(-100.,-100.,-100.), 200., 1., 200., m1);
+  Quad roof(Vector3f(-100.,100.,-100.), 200., 1., 200., m2);
+  Quad w1(Vector3f(100.,-100.,-100.), 1., 200., 200., m3);
+  Quad w2(Vector3f(-100.,-100.,-100.), 1., 200., 200., m4);
+  Quad w3(Vector3f(-100.,-100.,100.), 200., 200., 1., m5);
+  Quad w4(Vector3f(-100.,-100.,-100.), 200., 200., 1., m6);
+  Sphere s(Vector3f(70.,-15.,-15.), 25., m7);
+  Quad cube(Vector3f(40.,50.,15.), 30., 50., 30., m8);
+
   Vector3f light(0.,-80.,-40.);
+
   int nb_shapes = 8;
   Shape** listS = new Shape*[nb_shapes];
   listS[0] = &ground;
@@ -39,8 +42,10 @@ int main() {
   listS[5] = &w4;
   listS[6] = &s;
   listS[7] = &cube;
+
+
   Scene sc(camera, listS, light, nb_shapes);
-  sc.render(250, 250, "test", 10);
+  sc.render(500, 500, "test.bmp", 5, 2);
 
   return 0;
 }

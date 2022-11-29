@@ -1,25 +1,20 @@
 #include "quad.h"
 
-Quad::Quad(Vector3f origin_, Vector3f width_, Vector3f height_, Vector3f lenght_, Material matter_) {
+Quad::Quad(Vector3f origin_, float width_, float height_, float lenght_, Material matter_) {
   origin = origin_;
-  width = width_;
-  length = lenght_;
-  height = height_;
+  top_corner = origin+Vector3f(width_, height_, lenght_);
   matter = matter_;
 }
 
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
 bool Quad::isHit(Ray3f ray) const {
-  Vector3f vmin = origin;
-  Vector3f vmax = origin+height+length+width;
-
-  float tmin = (vmin.x - ray.origin.x) / ray.direction.x; 
-  float tmax = (vmax.x - ray.origin.x) / ray.direction.x; 
+  tmin = (origin.x - ray.origin.x) / ray.direction.x; 
+  float tmax = (top_corner.x - ray.origin.x) / ray.direction.x; 
 
   if (tmin > tmax) std::swap(tmin, tmax); 
 
-  float tymin = (vmin.y - ray.origin.y) / ray.direction.y; 
-  float tymax = (vmax.y - ray.origin.y) / ray.direction.y; 
+  float tymin = (origin.y - ray.origin.y) / ray.direction.y; 
+  float tymax = (top_corner.y - ray.origin.y) / ray.direction.y; 
 
   if (tymin > tymax) std::swap(tymin, tymax); 
 
@@ -32,8 +27,8 @@ bool Quad::isHit(Ray3f ray) const {
   if (tymax < tmax) 
       tmax = tymax; 
 
-  float tzmin = (vmin.z - ray.origin.z) / ray.direction.z; 
-  float tzmax = (vmax.z - ray.origin.z) / ray.direction.z; 
+  float tzmin = (origin.z - ray.origin.z) / ray.direction.z; 
+  float tzmax = (top_corner.z - ray.origin.z) / ray.direction.z; 
 
   if (tzmin > tzmax) std::swap(tzmin, tzmax); 
 
@@ -49,67 +44,36 @@ bool Quad::isHit(Ray3f ray) const {
   if (tmin < 0)
     return false;
 
+  isHitCalled = true;
   return true;
 } // CHANGER LE CODE EST VOLE
 
 Ray3f Quad::reflect(Ray3f ray) const {
-  Vector3f vmin = origin;
-  Vector3f vmax = origin+height+length+width;
+  if (!isHitCalled)
+    throw "isHit needs to be called first";
 
-  float tmin = (vmin.x - ray.origin.x) / ray.direction.x; 
-  float tmax = (vmax.x - ray.origin.x) / ray.direction.x; 
-
-  if (tmin > tmax) std::swap(tmin, tmax); 
-
-  float tymin = (vmin.y - ray.origin.y) / ray.direction.y; 
-  float tymax = (vmax.y - ray.origin.y) / ray.direction.y; 
-
-  if (tymin > tymax) std::swap(tymin, tymax); 
-
-  if (tymin > tmin) 
-      tmin = tymin; 
-
-  if (tymax < tmax) 
-      tmax = tymax; 
-
-  float tzmin = (vmin.z - ray.origin.z) / ray.direction.z; 
-  float tzmax = (vmax.z - ray.origin.z) / ray.direction.z; 
-
-  if (tzmin > tzmax) std::swap(tzmin, tzmax);
-
-  if (tzmin > tmin) 
-      tmin = tzmin; 
-
-  if (tzmax < tmax) 
-      tmax = tzmax;
+  isHitCalled = false;
 
   Vector3f intersection = ray.origin + tmin*ray.direction;
   Vector3f N;
 
-  float cx = std::abs(intersection.x - vmin.x);
-  float fx = std::abs(intersection.x - vmax.x);
-  float cy = std::abs(intersection.y - vmin.y);
-  float fy = std::abs(intersection.y - vmax.y);
-  float cz = std::abs(intersection.z - vmin.z);
-  float fz = std::abs(intersection.z - vmax.z);
-
-  if(cx < 1e-3)
+  if(std::abs(intersection.x - origin.x) < 1e-3)
     N = Vector3f(-1.0, 0.0, 0.0);
-  else if (fx < 1e-3)
+  else if (std::abs(intersection.x - top_corner.x) < 1e-3)
     N = Vector3f(1.0, 0.0, 0.0);
-  else if (cy < 1e-3)
+  else if (std::abs(intersection.y - origin.y) < 1e-3)
     N = Vector3f(0.0, -1.0, 0.0);
-  else if (fy < 1e-3)
+  else if (std::abs(intersection.y - top_corner.y) < 1e-3)
     N = Vector3f(0.0, 1.0, 0.0);
-  else if (cz < 1e-3)
+  else if (std::abs(intersection.z - origin.z) < 1e-3)
     N = Vector3f(0.0, 0.0, -1.0);
-  else if (fz < 1e-3)
+  else if (std::abs(intersection.z - top_corner.z) < 1e-3)
     N = Vector3f(0.0, 0.0, 1.0);
   
   return Ray3f(intersection, -2*dot_product(ray.direction, N)*N+ray.direction);
 }
 
 std::ostream & operator<< (std::ostream &st, const Quad &q) {
-  st << "Quad: " << "\n- matter: "  << q.matter << "\n- origin: " << q.origin << "\n- width: " << q.width << "\n- height: " << q.height;
+  st << "Quad: " << "\n- matter: "  << q.matter << "\n- origin: " << q.origin << "\n- width: " << q.top_corner.x << "\n- height: " << q.top_corner.y << "\n- length: " << q.top_corner.z;
   return st;
 }

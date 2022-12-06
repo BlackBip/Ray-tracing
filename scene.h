@@ -20,7 +20,7 @@ class Scene {
     Vector3f source;
     int nb_shapes;
     Scene(Camera camera_, Shape** shapes_, Vector3f source_, int nb_shapes);
-    void render(int width, int height, std::string filename, int bounces, int SSAA=1);
+    void render(int width, int height, std::string filename, int bounces, int SSAA=1, int numThreads=1);
 };
 
 std::ostream & operator<< (std::ostream &st, const Scene &s);

@@ -4,7 +4,9 @@
 #include "vector3f.h"
 #include <cmath>
 #include <SDL2/SDL.h>
-#include <iostream>
+#include <ostream>
+#include <vector>
+#include <thread>
 
 Scene::Scene(Camera camera_, Shape** shapes_, Vector3f source_, int nb_shapes_) {
   camera = camera_;
@@ -13,51 +15,57 @@ Scene::Scene(Camera camera_, Shape** shapes_, Vector3f source_, int nb_shapes_) 
   nb_shapes = nb_shapes_;
 }
 
-void Scene::render(int width, int height, std::string filename, int bounces, int SSAA){
+void Scene::render(int width, int height, std::string filename, int bounces, int SSAA, int numThreads){
   Shape* lastShape = NULL;
   Color** image = new Color*[height*SSAA];
   for (int i = 0; i < (height*SSAA); i++) //?
     image[i] = new Color[width*SSAA];
   initGrid(width, height);
-    
-  for (int i = 0; i < (width*SSAA); i++){
-    for (int j = 0; j < (height*SSAA); j++){
-      Shape* lastShape = NULL;
-      float coef = 1.;
-      Ray3f ray = computeVect(i, j, SSAA);
-      for(int nb_bouces = 0; nb_bouces < bounces; nb_bouces++) {
-        Ray3f* reflexions = new Ray3f[nb_shapes];
-        Shape** hit = new Shape*[nb_shapes];
-        int reflexion_size = 0;
-        for (int k = 0; k < nb_shapes; k++) {
-          if (shapes[k] != lastShape && shapes[k]->isHit(ray)) {
-            hit[reflexion_size] = shapes[k];
-            reflexions[reflexion_size] = shapes[k]->reflect(ray);
-            reflexion_size++;
-          }
-        }
-        if (reflexion_size==0)
-          nb_bouces = bounces;
-        else {
-          Ray3f reflexion = reflexions[0];
-          Shape* closest_shape = hit[0];
-          float min_dist = norm(reflexion.origin-ray.origin);
-          for(int k=1; k<reflexion_size; k++) {
-            float dist = norm(reflexions[k].origin-ray.origin);
-            if (dist<min_dist) {
-              min_dist = dist;
-              reflexion = reflexions[k];
-              closest_shape = hit[k];          
+
+  int sectionSize = (width * SSAA) / numThreads;
+
+  std::vector<std::thread> threads;
+  for (int t = 0; t < numThreads; t++) {
+    int start = t * sectionSize;
+    int end = start + sectionSize;
+
+    threads.push_back(std::thread([&, start, end] {
+      for (int i = start; i < end; i++){
+        for (int j = 0; j < (height*SSAA); j++){
+          Shape* lastShape = NULL;
+          float coef = 1.;
+          Ray3f ray = computeVect(i, j, SSAA);
+          for(int nb_bouces = 0; nb_bouces < bounces; nb_bouces++) {
+            Ray3f reflexion;
+            Shape* reflexion_shape = NULL;
+            float min_dist = std::numeric_limits<float>::max();
+            for (int k = 0; k < nb_shapes; k++) {
+              if (shapes[k] != lastShape && shapes[k]->isHit(ray)) {
+                Ray3f reflexion_k = shapes[k]->reflect(ray);
+                float dist = norm(reflexion_k.origin-ray.origin);
+                if (dist<min_dist) {
+                  min_dist = dist;
+                  reflexion = reflexion_k;
+                  reflexion_shape = shapes[k];
+                }
+              }
+            }
+            if (reflexion_shape==NULL)
+              nb_bouces = bounces;
+            else {
+              image[i][j] += coef * isEnlightened(shapes, nb_shapes, source, reflexion.origin) * (1-reflexion_shape->matter.shininess) * reflexion_shape->matter.c;
+              coef *= reflexion_shape->matter.shininess;
+              lastShape = reflexion_shape;
+              ray = reflexion;
             }
           }
-          delete [] hit;
-          image[i][j] += coef * isEnlightened(shapes, nb_shapes, source, reflexion.origin) * (1-closest_shape->matter.shininess) * closest_shape->matter.c;
-          coef *= closest_shape->matter.shininess;
-          lastShape = closest_shape;
-          ray = reflexion;
         }
       }
-    }
+    }));
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
   }
 
   save(image, width, height, filename, SSAA);
@@ -67,10 +75,12 @@ void Scene::render(int width, int height, std::string filename, int bounces, int
   delete[] image;
 }
 
+
 void Scene::initGrid(int width, int height) {
   Vector3f t = camera.direction/norm(camera.direction);
-  Vector3f v = Vector3f(0,1,0); // à fix pour tourner la cam
-  Vector3f b = Vector3f(0,0,1);
+  Vector3f v = Vector3f(0,1,0);
+  Vector3f b = cross_product(t,v);
+  b /= norm(b);
   float gx = tan(camera.fov/2);
   float gy = gx*(height-1)/(width-1);
   qx = (2*gx)/(width-1)*b;
@@ -102,7 +112,7 @@ void save(Color **image, int width, int height, std::string filename, int SSAA){
   }
 
   if (SDL_SaveBMP(surface, filename.c_str())) {
-    throw "Cannot save file";
+    throw std::runtime_error("Cannot save file");
   }
 }
 

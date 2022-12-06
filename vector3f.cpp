@@ -34,6 +34,14 @@ float dot_product (const Vector3f &v1, const Vector3f &v2) {
   return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
 }
 
+Vector3f cross_product (const Vector3f &v1, const Vector3f &v2) {
+  Vector3f v3;
+  v3.x = v1.y * v2.z - v1.z * v2.y;
+  v3.y = v1.z * v2.x - v1.x * v2.z;
+  v3.z = v1.x * v2.y - v1.y * v2.x;
+  return v3;
+}
+
 Vector3f operator+ (const Vector3f &v1, const Vector3f &v2) {
   return Vector3f(v1)+=v2;
 }

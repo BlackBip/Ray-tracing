@@ -10,8 +10,6 @@
 #include "scene.h"
 
 int main() {
-  Camera camera(Vector3f(-70.,0.,0.), Vector3f(1.,0.,0.), 3.14/2);
-
   Material m1(Color(1.,0.,0.),0.2); // plafond
   Material m2(Color(0.,1.,0.),0.2); // sol
   Material m3(Color(0.,0.,1.),0.2); // mur devant
@@ -44,8 +42,12 @@ int main() {
   listS[7] = &cube;
 
 
-  Scene sc(camera, listS, light, nb_shapes);
-  sc.render(500, 500, "test.bmp", 5, 2);
+  Camera camera1(Vector3f(-70.,0.,0.), Vector3f(1.,0.,0.), 3.14/2);
+  Camera camera2(Vector3f(-60.,99.,-60.), Vector3f(1.,-0.8,1.), 3.14/2);
+  Scene sc1(camera1, listS, light, nb_shapes);
+  Scene sc2(camera2, listS, light, nb_shapes);
+  sc1.render(500, 500, "test.bmp", 5, 2, 12);
+  sc2.render(500, 500, "test_other_angle.bmp", 5, 2, 12);
 
   return 0;
 }

@@ -8,7 +8,7 @@ Quad::Quad(Vector3f origin_, float width_, float height_, float lenght_, Materia
 
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
 bool Quad::isHit(Ray3f ray) const {
-  tmin = (origin.x - ray.origin.x) / ray.direction.x; 
+  float tmin = (origin.x - ray.origin.x) / ray.direction.x; 
   float tmax = (top_corner.x - ray.origin.x) / ray.direction.x; 
 
   if (tmin > tmax) std::swap(tmin, tmax); 
@@ -44,15 +44,33 @@ bool Quad::isHit(Ray3f ray) const {
   if (tmin < 0)
     return false;
 
-  isHitCalled = true;
   return true;
 } // CHANGER LE CODE EST VOLE
 
 Ray3f Quad::reflect(Ray3f ray) const {
-  if (!isHitCalled)
-    throw "isHit needs to be called first";
+  float tmin = (origin.x - ray.origin.x) / ray.direction.x; 
+  float tmax = (top_corner.x - ray.origin.x) / ray.direction.x; 
 
-  isHitCalled = false;
+  if (tmin > tmax) std::swap(tmin, tmax); 
+
+  float tymin = (origin.y - ray.origin.y) / ray.direction.y; 
+  float tymax = (top_corner.y - ray.origin.y) / ray.direction.y; 
+
+  if (tymin > tymax) std::swap(tymin, tymax); 
+
+  if (tymin > tmin) 
+      tmin = tymin; 
+
+  if (tymax < tmax) 
+      tmax = tymax; 
+
+  float tzmin = (origin.z - ray.origin.z) / ray.direction.z; 
+  float tzmax = (top_corner.z - ray.origin.z) / ray.direction.z; 
+
+  if (tzmin > tzmax) std::swap(tzmin, tzmax); 
+
+  if (tzmin > tmin) 
+      tmin = tzmin; 
 
   Vector3f intersection = ray.origin + tmin*ray.direction;
   Vector3f N;

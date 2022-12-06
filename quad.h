@@ -7,9 +7,6 @@
 #include "material.h"
 
 class Quad : public Shape {
-  private:
-    mutable float tmin;
-    mutable bool isHitCalled;
   public:
     Quad(Vector3f origin_, float width_, float height_, float length_, Material matter_);
     Vector3f origin;

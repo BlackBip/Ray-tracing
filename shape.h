@@ -11,7 +11,7 @@
 #include "material.h"
 
 /**
- * @class Shininess
+ * @class Shape
  * @brief Represents a geometric shape in a 3D scene.
  */
 class Shape {

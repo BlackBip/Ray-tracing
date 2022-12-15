@@ -10,7 +10,7 @@
 #include "color.h"
 
 /**
- * @class Shininess
+ * @class Material
  * @brief Represents material for ray tracing.
  */
 class Material {

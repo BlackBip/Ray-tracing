@@ -49,6 +49,7 @@ bool Quad::isHit(Ray3f ray) const {
   return true;
 }
 
+// and http://www.3dkingdoms.com/weekly/weekly.php?a=2
 Ray3f Quad::reflect(Ray3f ray) const {
   float tmin = (origin.x - ray.origin.x) / ray.direction.x; 
   float tmax = (top_corner.x - ray.origin.x) / ray.direction.x; 

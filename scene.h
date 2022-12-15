@@ -32,7 +32,7 @@ class Scene {
      * @brief Initializes the grid of pixels in the image by computing qx, qy and p1m.
      * @param width The width of the image.
      * @param height The height of the image.
-     * * @see https://en.wikipedia.org/wiki/Ray_tracing_(graphics)#Calculate_rays_for_rectangular_viewport
+     * @see https://en.wikipedia.org/wiki/Ray_tracing_(graphics)#Calculate_rays_for_rectangular_viewport
      */
     void initGrid(int width, int height);
     /**

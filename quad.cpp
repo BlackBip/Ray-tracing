@@ -1,8 +1,10 @@
 #include "quad.h"
 
 Quad::Quad(Vector3f origin_, float width_, float height_, float lenght_, Material matter_) {
+  if ( width_ < 0 || height_ < 0 || lenght_ < 0 ) 
+    throw std::runtime_error("width, height or lenght is negative");
   origin = origin_;
-  top_corner = origin+Vector3f(width_, height_, lenght_);
+  top_corner = origin + Vector3f(width_, height_, lenght_);
   matter = matter_;
 }
 
@@ -45,7 +47,7 @@ bool Quad::isHit(Ray3f ray) const {
     return false;
 
   return true;
-} // CHANGER LE CODE EST VOLE
+}
 
 Ray3f Quad::reflect(Ray3f ray) const {
   float tmin = (origin.x - ray.origin.x) / ray.direction.x; 

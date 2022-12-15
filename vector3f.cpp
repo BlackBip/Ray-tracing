@@ -21,7 +21,7 @@ Vector3f & Vector3f::operator*=(float f) {
 
 Vector3f & Vector3f::operator/=(float f) {
   if (f<1e-5) {
-    throw "Division by zero";
+    throw std::runtime_error("Division by zero");
   }
   return *this *= 1./f;
 }

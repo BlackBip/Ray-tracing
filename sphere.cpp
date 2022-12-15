@@ -3,21 +3,23 @@
 
 Sphere::Sphere(Vector3f origin_, float radius_, Material matter_) {
   if (radius_<0) {
-    throw std::runtime_error("Negative radius");
+    throw std::runtime_error("Radius is negative");
   }
   origin = origin_;
   radius = radius_;
   matter = matter_;
 }
 
-// https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
+// See https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
+// Variable names were left unchanged for code clarity
 bool Sphere::isHit(Ray3f ray) const {
   float delta = pow(dot_product(ray.direction,ray.origin-origin),2) - (pow(norm(ray.origin-origin),2)-pow(radius,2));
-  return (delta>0); // voir pour mettre un 1e-3 ou quoi
+  return (delta>0);
 }
 
-// https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
-// http://www.3dkingdoms.com/weekly/weekly.php?a=2
+// See https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
+// and http://www.3dkingdoms.com/weekly/weekly.php?a=2
+// Variable names were left unchanged for code clarity
 Ray3f Sphere::reflect(Ray3f ray) const {
   float delta = pow(dot_product(ray.direction,ray.origin-origin),2) - (pow(norm(ray.origin-origin),2)-pow(radius,2));
 

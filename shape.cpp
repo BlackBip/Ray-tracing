@@ -6,7 +6,7 @@ bool isEnlightened(Shape** shapes, int nb_shapes, Vector3f light, Vector3f point
     Ray3f light_path(light, point-light);
     if (shapes[i]->isHit(light_path)) {
       Vector3f potential_obstacle = shapes[i]->reflect(light_path).origin;
-      if (light_dist > norm(light - potential_obstacle) && norm(point - potential_obstacle) > 1e-2) {
+      if (light_dist > norm(light - potential_obstacle) && norm(point - potential_obstacle) > 1e-2) { // 1e-2 leads to more realistic looking images
         return false;
       }
     }

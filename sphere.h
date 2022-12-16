@@ -17,7 +17,7 @@
  * @brief Represents a sphere in 3D space.
  */
 class Sphere : public Shape {
-  public:
+  private:
     /**
      * @brief The origin of the sphere.
      */
@@ -26,6 +26,7 @@ class Sphere : public Shape {
      * @brief The radius of the sphere.
      */
     float radius;
+  public:
     /**
      * @brief Indicates whether a given ray intersects this shape.
      * @param ray The ray to test for intersection.
@@ -45,8 +46,8 @@ class Sphere : public Shape {
      */
     Sphere(Vector3f origin_, float radius_, Material matter_);
     Sphere() = default;
-};
 
-std::ostream & operator<< (std::ostream &st, const Sphere &s);
+    friend std::ostream & operator<< (std::ostream &st, const Sphere &s);
+};
 
 #endif

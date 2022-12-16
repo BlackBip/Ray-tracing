@@ -1,12 +1,16 @@
 #include "scene.h"
 #include "color.h"
-#include "shape.h"
 #include "vector3f.h"
+#include "shape.h"
+#include "camera.h"
+#include "ray3f.h"
+#include "light.h"
 #include <cmath>
 #include <SDL2/SDL.h>
 #include <ostream>
 #include <vector>
 #include <thread>
+#include <exception>
 
 Scene::Scene(Camera camera_, Shape** shapes_, Light** lights_, int nb_shapes_, int nb_lights_) {
   if ( nb_shapes_ < 0 || nb_lights_ > 3.14 ) 
@@ -18,7 +22,7 @@ Scene::Scene(Camera camera_, Shape** shapes_, Light** lights_, int nb_shapes_, i
   nb_lights = nb_lights_;
 }
 
-void Scene::render(int width, int height, std::string filename, int max_bounces, int SSAA_factor, int nb_threads){
+SDL_Surface* Scene::render(int width, int height, int max_bounces, int SSAA_factor, int nb_threads){
   Color** image = new Color*[width*SSAA_factor];
   for (int i = 0; i < (width*SSAA_factor); i++) // The image is rendered at an higher resolution to avoid pixelation if SSAA_factor!=1
     image[i] = new Color[height*SSAA_factor];
@@ -63,11 +67,8 @@ void Scene::render(int width, int height, std::string filename, int max_bounces,
 
   for (auto& thread : threads)
     thread.join();
-  save(image, width, height, filename, SSAA_factor);
 
-  for (int i = 0; i < width; ++i) // Cleanup
-    delete [] image[i];
-  delete[] image;
+  return computeSDLSurface(image, width, height, SSAA_factor);
 }
 
 // See https://en.wikipedia.org/wiki/Ray_tracing_(graphics)#Calculate_rays_for_rectangular_viewport
@@ -90,7 +91,7 @@ Ray3f Scene::computeIncidentRay(int i, int j, int SSAA_factor){
   return Ray3f(camera.position, p1m+(i-1)/(float)SSAA_factor*qx+(j-1)/(float)SSAA_factor*qy);
 }
 
-void save(Color **image, int width, int height, std::string filename, int SSAA_factor){
+SDL_Surface* computeSDLSurface(Color **image, int width, int height, int SSAA_factor){
   SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
 
   Uint32* pixels = (Uint32*)surface->pixels;
@@ -109,9 +110,51 @@ void save(Color **image, int width, int height, std::string filename, int SSAA_f
     }
   }
 
+  for (int i = 0; i < (width*SSAA_factor); ++i) // Cleanup
+    delete [] image[i];
+  delete[] image;
+
+  return surface;
+}
+
+void save(SDL_Surface* surface, std::string filename) {
   if (SDL_SaveBMP(surface, filename.c_str())) {
     throw std::runtime_error("Cannot save file");
   }
+  SDL_FreeSurface(surface);
+}
+
+void display(SDL_Surface* surface, std::string title) {
+    SDL_Window* window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, surface->w, surface->h, SDL_WINDOW_SHOWN);
+    if (window == nullptr)
+      throw std::runtime_error("Error creating window: " + std::string(SDL_GetError()));
+
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (renderer == nullptr)
+      throw std::runtime_error("Error creating renderer: " + std::string(SDL_GetError()));
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (texture == nullptr)
+        throw std::runtime_error("Error creating texture: " + std::string(SDL_GetError()));
+
+    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+    SDL_RenderPresent(renderer);
+
+    bool quit = false;
+    SDL_Event event;
+    while (!quit)
+    {
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+                quit = true;
+        }
+    }
+
+    SDL_DestroyTexture(texture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_FreeSurface(surface);
 }
 
 std::ostream & operator<< (std::ostream &st, const Scene &s) {

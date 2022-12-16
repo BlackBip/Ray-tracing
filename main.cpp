@@ -19,46 +19,55 @@
  */
 int main(int argc, char* argv[]) {
 
-  // Arguments checks and thread_count setting
-
+  bool render_all = false;
   int thread_count = 0;
 
-  if (argc == 1) {
+  // Arguments checks, behavior switch and thread_count setting
+
+  for (int i=1; i<argc; i++) {
+    if (std::string(argv[i]) == "--help") {
+      std::cout << "Usage: program_name [--render-all] [--threads n]\n"
+                << "This program accepts an optional --render-all flag that will generate the report .bmp image.\n"
+                << "If not used, a single image will be displayed in a window.\n"
+                << "This program accepts an optional --threads flag followed by an integer value.\n"
+                << "If not used, the program will try to use the all the threads available.\n";
+      return 0;
+    }
+    else if (std::string(argv[i]) == "--threads") {
+      if (argc < (i+1)) {
+        std::cout << "Error: invalid value for --thread.\n"
+                  << "Use --help for usage information.\n";
+        return 1;
+      }
+      thread_count = std::atoi(argv[i+1]);
+      i++;
+      if (thread_count == 0) {
+        std::cout << "Error: invalid value for --thread.\n"
+                  << "Use --help for usage information.\n";
+        return 1;
+      }
+      else {
+        std::cout << "Using " << thread_count << " threads.\n";
+      }
+    }
+    else if (std::string(argv[i]) == "--render-all") {
+      render_all = true;
+    }
+    else {
+      std::cout << "Error: invalid argument provided.\n"
+                << "Use --help for usage information.\n";
+      return 1;
+    }
+  }
+  if (thread_count == 0) {
     thread_count = std::thread::hardware_concurrency();
     if (thread_count!=0) {
-       std::cout << "No arguments provided, using the maximum number of threads (" << thread_count << ")\n";
+       std::cout << "--threads unused, using the maximum number of threads (" << thread_count << ")\n";
     }
     else {
-      std::cout << "No arguments provided and unable to determine the number of threads. Using 1 thread.\n";
+      std::cout << "--threads unused and unable to determine the number of threads. Using 1 thread.\n";
       thread_count = 1;
     }
-  }
-  else if (std::string(argv[1]) == "--help") {
-    std::cout << "Usage: program_name [--threads n] argument\n"
-              << "This program accepts an optional --threads flag followed by an integer value.\n"
-              << "If no arguments are provided, the program will try to use the all the threads available.\n";
-    return 0;
-  }
-  else if (std::string(argv[1]) == "--threads") {
-    if (argc != 3) {
-      std::cout << "Error: invalid value for --thread.\n"
-                << "Use --help for usage information.\n";
-      return 1;
-    }
-    thread_count = std::atoi(argv[2]);
-    if (thread_count == 0) {
-      std::cout << "Error: invalid value for --thread.\n"
-                << "Use --help for usage information.\n";
-      return 1;
-    }
-    else {
-      std::cout << "Using " << thread_count << " threads.\n";
-    }
-  }
-  else {
-    std::cout << "Error: invalid argument provided.\n"
-              << "Use --help for usage information.\n";
-    return 1;
   }
 
   // Scenes shapes
@@ -120,30 +129,36 @@ int main(int argc, char* argv[]) {
   Scene scene_camera_1_wide_angle_two_lights(camera_1_wide_angle, shapes_list, two_lights_list, nb_shapes, two_lights_list_size);
   Scene scene_camera_2_two_lights(camera_2, shapes_list, two_lights_list, nb_shapes, two_lights_list_size);
 
-  // Scenes renders
-
   std::cout << "Beginning of rendering ..." << std::endl;
 
-  std::cout << "Straight camera angle, 1 light source, 0 light bounce (image 1/7)" << std::endl;
-  scene_camera_1_one_light.render(500, 500, "render_straight_angle_1_light_0_bounce.bmp", 1, 1, thread_count);
+  if (render_all) { // Renders scene and save them in bmp files
 
-  std::cout << "Straight camera angle, 1 light source, 1 light bounce (image 2/7)" << std::endl;
-  scene_camera_1_one_light.render(500, 500, "render_straight_angle_1_light_1_bounce.bmp", 2, 1, thread_count);
+    std::cout << "Straight camera angle, 1 light source, 0 light bounce (image 1/7)" << std::endl;
+    save(scene_camera_1_one_light.render(500, 500, 1, 1, thread_count),"render_straight_angle_1_light_0_bounce.bmp");
 
-  std::cout << "Straight camera angle, 1 light source, 5 light bounces (image 3/7)" << std::endl;
-  scene_camera_1_one_light.render(500, 500, "render_straight_angle_1_light_5_bounces.bmp", 6, 1, thread_count);
+    std::cout << "Straight camera angle, 1 light source, 1 light bounce (image 2/7)" << std::endl;
+    save(scene_camera_1_one_light.render(500, 500, 2, 1, thread_count), "render_straight_angle_1_light_1_bounce.bmp");
 
-  std::cout << "Straight camera angle, 1 light source, 5 light bounces, SSAA factor of 2 (image 4/7)" << std::endl;
-  scene_camera_1_one_light.render(500, 500, "render_straight_angle_1_light_5_bounces_2_SSAA.bmp", 6, 2, thread_count);
+    std::cout << "Straight camera angle, 1 light source, 5 light bounces (image 3/7)" << std::endl;
+    save(scene_camera_1_one_light.render(500, 500, 6, 1, thread_count), "render_straight_angle_1_light_5_bounces.bmp");
 
-  std::cout << "Straight camera angle, 2 light sources, 5 light bounces, SSAA factor of 2 (image 5/7)" << std::endl;
-  scene_camera_1_two_lights.render(500, 500, "render_straight_angle_2_lights_5_bounces_2_SSAA.bmp", 6, 2, thread_count);
+    std::cout << "Straight camera angle, 1 light source, 5 light bounces, SSAA factor of 2 (image 4/7)" << std::endl;
+    save(scene_camera_1_one_light.render(500, 500, 6, 2, thread_count), "render_straight_angle_1_light_5_bounces_2_SSAA.bmp");
 
-  std::cout << "Straight camera angle, 2 light sources, 5 light bounces, SSAA factor of 2, wide angle FOV (130°) (image 6/7)" << std::endl;
-  scene_camera_1_wide_angle_two_lights.render(500, 500, "render_straight_angle_2_lights_5_bounces_2_SSAA_130_fov.bmp", 6, 2, thread_count);
+    std::cout << "Straight camera angle, 2 light sources, 5 light bounces, SSAA factor of 2 (image 5/7)" << std::endl;
+    save(scene_camera_1_two_lights.render(500, 500, 6, 2, thread_count), "render_straight_angle_2_lights_5_bounces_2_SSAA.bmp");
 
-  std::cout << "Low-angle shot, 2 light sources, 5 light bounces, SSAA factor of 2, 4/3 aspect ratio (image 7/7)" << std::endl;
-  scene_camera_2_two_lights.render(666, 500, "render_low_angle_2_lights_5_bounces_2_SSAA_aspect_ratio.bmp", 6, 2, thread_count);
+    std::cout << "Straight camera angle, 2 light sources, 5 light bounces, SSAA factor of 2, wide angle FOV (130°) (image 6/7)" << std::endl;
+    save(scene_camera_1_wide_angle_two_lights.render(500, 500, 6, 2, thread_count), "render_straight_angle_2_lights_5_bounces_2_SSAA_130_fov.bmp");
+
+    std::cout << "Low-angle shot, 2 light sources, 5 light bounces, SSAA factor of 2, 4/3 aspect ratio (image 7/7)" << std::endl;
+    save(scene_camera_2_two_lights.render(666, 500, 6, 2, thread_count), "render_low_angle_2_lights_5_bounces_2_SSAA_aspect_ratio.bmp");
+
+  }
+  else { // Display one scene
+    std::cout << "Straight camera angle, 2 light sources, 5 light bounces, SSAA factor of 2" << std::endl;
+    display(scene_camera_1_two_lights.render(500, 500, 6, 2, thread_count), "Ray tracing project");
+  }
 
   return 0;
 }

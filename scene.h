@@ -8,6 +8,7 @@
 
 #include <ostream>
 #include <string>
+#include <SDL2/SDL.h>
 
 #include "shape.h"
 #include "camera.h"
@@ -81,25 +82,40 @@ class Scene {
      */
     Scene(Camera camera_, Shape** shapes_, Light** lights_, int nb_shapes_, int nb_lights_);
     /**
-     * @brief Renders the scene to an image.
+     * @brief Renders the scene to an image using ray tracing.
      * @param width The width of the image to be generated.
      * @param height The height of the image to be generated.
-     * @param filename The name of the file to save the image to.
      * @param max_bounces The maximum number of bounces of light to simulate.
      * @param SSAA_factor The super-sampling factor.
      * @param nb_threads The number of threads to use for rendering.
+     * @return SDL_Surface* containing the image.
      */
-    void render(int width, int height, std::string filename, int max_bounces, int SSAA_factor=1, int nb_threads=1);
+    SDL_Surface* render(int width, int height, int max_bounces, int SSAA_factor=1, int nb_threads=1);
 };
 
 std::ostream & operator<< (std::ostream &st, const Scene &s);
 /**
- * @brief Saves the given image to a bmp file named filename using the SDL.
+ * @brief Tranform the Color** image into a SDL_Surface to make it easier to save and display
  * @param image The image to save.
  * @param width The width of the image.
  * @param height The height of the image.
+ * @param SSAA_factor The super-sampling factor.
+ * @return SDL_Surface* containing the image.
+ */
+SDL_Surface* computeSDLSurface(Color **image, int width, int height, int SSAA_factor);
+
+/**
+ * @brief Saves the given surface to a bmp file named filename using the SDL.
+ * @param surface The surface containing the image to save.
  * @param filename The name of the file to save the image to.
  */
-void save(Color **image, int width, int height, std::string filename, int SSAA);
+void save(SDL_Surface* surface, std::string filename);
+
+/**
+ * @brief Display the surface in a winow named title using the SDL.
+ * @param surface The surface containing the image to diplay.
+ * @param filename The name of the SDL window.
+ */
+void display(SDL_Surface* surface, std::string title);
 
 #endif

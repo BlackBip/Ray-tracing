@@ -78,6 +78,7 @@ class Scene {
      * @param lights_ The lights in the scene.
      * @param nb_shapes_ The number of shapes in the scene.
      * @param nb_lights_ The number of lights in the scene.
+     * @throw runtime_error if nb_shapes or nb_lights is negative
      */
     Scene(Camera camera_, Shape** shapes_, Light** lights_, int nb_shapes_, int nb_lights_);
     /**
@@ -99,6 +100,7 @@ std::ostream & operator<< (std::ostream &st, const Scene &s);
  * @param width The width of the image.
  * @param height The height of the image.
  * @param filename The name of the file to save the image to.
+ * @throw runtime_error if we cannot save file
  */
 void save(Color **image, int width, int height, std::string filename, int SSAA);
 

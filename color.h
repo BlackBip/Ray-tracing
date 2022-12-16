@@ -31,6 +31,7 @@ class Color {
      * @param r_ The red channel of the color.
      * @param g_ The green channel of the color.
      * @param b_ The blue channel of the color.
+     * @throw runtime_error if r, g or b is not between 0 and 1
      */
     Color(float r_ = 0., float g_ = 0.,float b_ = 0.);
     Color & operator+=(Color c);

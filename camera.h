@@ -33,6 +33,7 @@ class Camera {
      * @param position_ The position of the camera in 3D space.
      * @param direction_ The direction the camera is facing.
      * @param fov The field of view of the camera.
+     * @throw runtime_error if fov is not in between 0 and pi
      */
     Camera(Vector3f position_, Vector3f direction_, float fov);
 };

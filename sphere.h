@@ -42,6 +42,7 @@ class Sphere : public Shape {
      * @brief Constructs a new Sphere object with the given values.
      * @param position_ The origin of the sphere.
      * @param radius_ The radius of the sphere.
+     * @throw runtime_error if the radius is negative.
      */
     Sphere(Vector3f origin_, float radius_, Material matter_);
     Sphere() = default;

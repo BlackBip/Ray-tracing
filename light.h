@@ -28,6 +28,7 @@ class Light {
      * @brief Constructs a new Light object with the given values.
      * @param position_ The position of the light source in 3D space.
      * @param intensity_ The intensity of the light source.
+     * @throw runtime_error if intensity is not between 0 and 1
      */
     Light(Vector3f position_, float intensity_);
 };

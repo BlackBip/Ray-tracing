@@ -33,7 +33,7 @@ class Quad : public Shape {
      * @param width_ The width of the rectangular cuboid.
      * @param height_ The height of the rectangular cuboid.
      * @param length_ The length of the rectangular cuboid.
-     * @throw runtime_error if width, height or lenght is negative
+     * @throw runtime_error if width, height or length is negative
      */
     Quad(Vector3f origin_, float width_, float height_, float length_, Material matter_);
     /**

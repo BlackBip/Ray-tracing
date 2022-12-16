@@ -79,6 +79,7 @@ class Scene {
      * @param lights_ The lights in the scene.
      * @param nb_shapes_ The number of shapes in the scene.
      * @param nb_lights_ The number of lights in the scene.
+     * @throw runtime_error if nb_shapes or nb_lights is negative
      */
     Scene(Camera camera_, Shape** shapes_, Light** lights_, int nb_shapes_, int nb_lights_);
     /**
@@ -108,6 +109,7 @@ SDL_Surface* computeSDLSurface(Color **image, int width, int height, int SSAA_fa
  * @brief Saves the given surface to a bmp file named filename using the SDL.
  * @param surface The surface containing the image to save.
  * @param filename The name of the file to save the image to.
+ * @throw runtime_error if we cannot save file
  */
 void save(SDL_Surface* surface, std::string filename);
 

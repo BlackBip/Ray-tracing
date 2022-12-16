@@ -28,6 +28,7 @@ class Ray3f {
      * @brief Constructs a new Ray3f object with the given values.
      * @param origin_ The origin of the light ray in 3D space.
      * @param direction_ The direction of the light ray in 3D space.
+     * @throw runtime_error if direction is near (0,0,0)
      */
     Ray3f(Vector3f origin_, Vector3f direction_);
 };

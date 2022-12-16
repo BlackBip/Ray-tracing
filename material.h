@@ -27,6 +27,7 @@ class Material {
      * @brief Constructs a new Material object with the given values.
      * @param c_ The color of the material.
      * @param shininess_ The shininess of the material.
+     * @throw runtime_error if shininess is not between 0 and 1
      */
     Material(Color c_, float shininess_);
     Material() = default;

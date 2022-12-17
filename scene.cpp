@@ -38,32 +38,35 @@ SDL_Surface* Scene::render(int width, int height, int max_bounces, int SSAA_fact
     threads.push_back(std::thread([&, start, end] { // Divides the render between multiple threads
       for (int i = start; i < end; i++){
         for (int j = 0; j < (height*SSAA_factor); j++){
-          for (int l = 0; l < nb_lights; l++){
-            Shape* last_shape = NULL;
-            float light_coef = lights[l]->intensity; // Store light source relative contribution
-            Ray3f incident_ray = computeIncidentRay(i, j, SSAA_factor); // Computes initial light ray "coming" from the camera 
-            for(int nb_bouces = 0; nb_bouces < max_bounces; nb_bouces++) { // Limits the number of light bounces
-              Ray3f reflexion;
-              Shape* reflexion_shape = NULL;
-              float min_dist = std::numeric_limits<float>::max();
-              for (int k = 0; k < nb_shapes; k++) { // Find the first shape hit by the light ray
-                if (shapes[k] != last_shape && shapes[k]->isHit(incident_ray)) {
-                  Ray3f reflexion_k = shapes[k]->reflect(incident_ray);
-                  float dist = norm(reflexion_k.origin-incident_ray.origin);
-                  if (dist<min_dist) {
-                    min_dist = dist;
-                    reflexion = reflexion_k;
-                    reflexion_shape = shapes[k];
-              }}}
-              if (reflexion_shape==NULL) // If not shapes are hit, ends the loop. This should not happen with our scenes
-                nb_bouces = max_bounces;
-              else {
+          Shape* last_shape = NULL;
+          float light_coef[nb_lights]; // Store light sources relative contribution
+          for (int l=0; l < nb_lights; l++)
+            light_coef[l] = lights[l]->intensity;
+          Ray3f incident_ray = computeIncidentRay(i, j, SSAA_factor); // Computes initial light ray "coming" from the camera 
+          for(int nb_bouces = 0; nb_bouces < max_bounces; nb_bouces++) { // Limits the number of light bounces
+            Ray3f reflexion;
+            Shape* reflexion_shape = NULL;
+            float min_dist = std::numeric_limits<float>::max();
+            for (int k = 0; k < nb_shapes; k++) { // Find the first shape hit by the light ray
+              if (shapes[k] != last_shape && shapes[k]->isHit(incident_ray)) {
+                Ray3f reflexion_k = shapes[k]->reflect(incident_ray);
+                float dist = norm(reflexion_k.origin-incident_ray.origin);
+                if (dist<min_dist) {
+                  min_dist = dist;
+                  reflexion = reflexion_k;
+                  reflexion_shape = shapes[k];
+            }}}
+            if (reflexion_shape==NULL) // If not shapes are hit, ends the loop. This should not happen with our scenes
+              nb_bouces = max_bounces;
+            else {
+              for (int l=0; l < nb_lights; l++) {
                 // Compute the color contribution of this 'bounce'
-                image[i][j] += light_coef * isEnlightened(shapes, nb_shapes, lights[l]->position, reflexion.origin) * (1-reflexion_shape->matter.shininess) * reflexion_shape->matter.c;
-                light_coef *= reflexion_shape->matter.shininess; // Sets the new light source relative contribution
-                last_shape = reflexion_shape; // Store the hit shape to avoid light bouncing on it in the next iteration
-                incident_ray = reflexion; // Sets the incident ray as the reflected one
-    }}}}}}));};
+                image[i][j] += light_coef[l] * isEnlightened(shapes, nb_shapes, lights[l]->position, reflexion.origin) * (1-reflexion_shape->matter.shininess) * reflexion_shape->matter.c;
+                light_coef[l] *= reflexion_shape->matter.shininess; // Sets the new light source relative contribution
+              }
+              last_shape = reflexion_shape; // Store the hit shape to avoid light bouncing on it in the next iteration
+              incident_ray = reflexion; // Sets the incident ray as the reflected one
+    }}}}}));};
 
   for (auto& thread : threads)
     thread.join();

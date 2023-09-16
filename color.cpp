@@ -2,7 +2,7 @@
 
 Color::Color(float r_, float g_,float b_) {
   if ( r_ < 0 || r_ > 1 || g_ < 0 || g_ > 1 || b_ < 0 || b_ > 1) 
-    throw std::runtime_error("r, g, b are not in the good domain");
+    throw std::runtime_error("r, g or b is not between 0 and 1");
   r = r_;
   g = g_;
   b = b_;

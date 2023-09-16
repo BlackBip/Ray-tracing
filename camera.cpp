@@ -1,6 +1,8 @@
 #include "camera.h"
 
 Camera::Camera(Vector3f position_, Vector3f direction_, float fov_) {
+  if ( fov_ < 0 || fov_ > 3.14 ) 
+    throw std::runtime_error("fov is not in between 0 and pi");
   position = position_;
   direction = direction_;
   fov = fov_;

@@ -1,112 +1,107 @@
 #include "quad.h"
 
-Quad::Quad(Vector3f origin_, Vector3f width_, Vector3f height_, Vector3f lenght_, Material matter_) {
+Quad::Quad(Vector3f origin_, float width_, float height_, float length_, Material matter_) {
+  if ( width_ < 0 || height_ < 0 || length_ < 0 ) 
+    throw std::runtime_error("width, height or length is negative");
   origin = origin_;
-  width = width_;
-  length = lenght_;
-  height = height_;
+  top_corner = origin + Vector3f(width_, height_, length_);
   matter = matter_;
 }
 
+// The idea of using the planes of the rectangular cuboid comes from this article :
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
+// Note : the provided C++ implementation was not used, it is probably faster but also less understandable
 bool Quad::isHit(Ray3f ray) const {
-  Vector3f vmin = origin;
-  Vector3f vmax = origin+height+length+width;
 
-  float tmin = (vmin.x - ray.origin.x) / ray.direction.x; 
-  float tmax = (vmax.x - ray.origin.x) / ray.direction.x; 
+  Vector3f origin_ray = origin - ray.origin;
+  Vector3f top_ray = top_corner - ray.origin;
 
-  if (tmin > tmax) std::swap(tmin, tmax); 
+  // Ray path : ray.origin + t*ray.direction with t>=0
+  // Compute the different values of t that would hit each combinaisons of the parallels planes defined by the rectangular cuboid
 
-  float tymin = (vmin.y - ray.origin.y) / ray.direction.y; 
-  float tymax = (vmax.y - ray.origin.y) / ray.direction.y; 
+  float t_first_hit_x = origin_ray.x / ray.direction.x;
+  float t_second_hit_x = top_ray.x / ray.direction.x;
 
-  if (tymin > tymax) std::swap(tymin, tymax); 
+  if (t_first_hit_x > t_second_hit_x) std::swap(t_first_hit_x, t_second_hit_x);
 
-  if ((tmin > tymax) || (tymin > tmax)) 
-      return false; 
+  float t_first_hit_y = origin_ray.y / ray.direction.y;
+  float t_second_hit_y = top_ray.y / ray.direction.y;
 
-  if (tymin > tmin) 
-      tmin = tymin; 
+  if (t_first_hit_y > t_second_hit_y) std::swap(t_first_hit_y, t_second_hit_y);
 
-  if (tymax < tmax) 
-      tmax = tymax; 
+  float t_first_hit_z = origin_ray.z / ray.direction.z; 
+  float t_second_hit_z = top_ray.z / ray.direction.z; 
 
-  float tzmin = (vmin.z - ray.origin.z) / ray.direction.z; 
-  float tzmax = (vmax.z - ray.origin.z) / ray.direction.z; 
+  if (t_first_hit_z > t_second_hit_z) std::swap(t_first_hit_z, t_second_hit_z); 
 
-  if (tzmin > tzmax) std::swap(tzmin, tzmax); 
+  // Check if max(t_first_hit_x,t_first_hit_y,t_first_hit_z) < min(t_second_hit_x,t_second_hit_y,t_second_hit_z)
+  // to ensure that the ray enters each plane of the rectangular cuboid before leaving any
 
-  if ((tmin > tzmax) || (tzmin > tmax)) 
-      return false; 
+  float t_first_hit = std::max(t_first_hit_x, std::max(t_first_hit_y, t_first_hit_z));
+  float t_second_hit = std::min(t_second_hit_x, std::min(t_second_hit_y, t_second_hit_z));
 
-  if (tzmin > tmin) 
-      tmin = tzmin; 
+  if (t_first_hit > t_second_hit)
+    return false;
 
-  if (tzmax < tmax) 
-      tmax = tzmax;
+  // Ensure that the collision happens with a positive t, as the light travels in a set direction
+  // t_second_hit was constructed be be greater than t_first_hit
+  return t_second_hit > 0;
+}
 
-  return true;
-} // CHANGER LE CODE EST VOLE
-
+// The reflection formula comes from this article :
+// http://www.3dkingdoms.com/weekly/weekly.php?a=2
 Ray3f Quad::reflect(Ray3f ray) const {
-  Vector3f vmin = origin;
-  Vector3f vmax = origin+height+length+width;
 
-  float tmin = (vmin.x - ray.origin.x) / ray.direction.x; 
-  float tmax = (vmax.x - ray.origin.x) / ray.direction.x; 
+  // Compute t_first_hit and t_second_hit again
 
-  if (tmin > tmax) std::swap(tmin, tmax); 
+  Vector3f origin_ray = origin - ray.origin;
+  Vector3f top_ray = top_corner - ray.origin;
 
-  float tymin = (vmin.y - ray.origin.y) / ray.direction.y; 
-  float tymax = (vmax.y - ray.origin.y) / ray.direction.y; 
+  float t_first_hit_x = origin_ray.x / ray.direction.x;
+  float t_second_hit_x = top_ray.x / ray.direction.x;
 
-  if (tymin > tymax) std::swap(tymin, tymax); 
+  if (t_first_hit_x > t_second_hit_x) std::swap(t_first_hit_x, t_second_hit_x);
 
-  if (tymin > tmin) 
-      tmin = tymin; 
+  float t_first_hit_y = origin_ray.y / ray.direction.y;
+  float t_second_hit_y = top_ray.y / ray.direction.y;
 
-  if (tymax < tmax) 
-      tmax = tymax; 
+  if (t_first_hit_y > t_second_hit_y) std::swap(t_first_hit_y, t_second_hit_y);
 
-  float tzmin = (vmin.z - ray.origin.z) / ray.direction.z; 
-  float tzmax = (vmax.z - ray.origin.z) / ray.direction.z; 
+  float t_first_hit_z = origin_ray.z / ray.direction.z; 
+  float t_second_hit_z = top_ray.z / ray.direction.z; 
 
-  if (tzmin > tzmax) std::swap(tzmin, tzmax);
+  if (t_first_hit_z > t_second_hit_z) std::swap(t_first_hit_z, t_second_hit_z); 
 
-  if (tzmin > tmin) 
-      tmin = tzmin; 
+  float t_first_hit = std::max(t_first_hit_x, std::max(t_first_hit_y, t_first_hit_z));
+  float t_second_hit = std::min(t_second_hit_x, std::min(t_second_hit_y, t_second_hit_z));
 
-  if (tzmax < tmax) 
-      tmax = tzmax;
+  // Find the smallest positive t that the intersect rectangular cuboid. It exists has this function is meant to
+  // be called after isHit.
+  float t_first_positive_hit = (t_first_hit<0) ? t_second_hit : t_first_hit;
 
-  Vector3f intersection = ray.origin + tmin*ray.direction;
+  // Compute the intersection
+  Vector3f intersection = ray.origin + t_first_positive_hit*ray.direction; 
   Vector3f N;
 
-  float cx = std::abs(intersection.x - vmin.x);
-  float fx = std::abs(intersection.x - vmax.x);
-  float cy = std::abs(intersection.y - vmin.y);
-  float fy = std::abs(intersection.y - vmax.y);
-  float cz = std::abs(intersection.z - vmin.z);
-  float fz = std::abs(intersection.z - vmax.z);
-
-  if(cx < 1e-3)
+  // Find which side of the regular cuboid was hit by the ray to compute the normal vector
+  if(std::abs(intersection.x - origin.x) < 1e-3)
     N = Vector3f(-1.0, 0.0, 0.0);
-  else if (fx < 1e-3)
+  else if (std::abs(intersection.x - top_corner.x) < 1e-3)
     N = Vector3f(1.0, 0.0, 0.0);
-  else if (cy < 1e-3)
+  else if (std::abs(intersection.y - origin.y) < 1e-3)
     N = Vector3f(0.0, -1.0, 0.0);
-  else if (fy < 1e-3)
+  else if (std::abs(intersection.y - top_corner.y) < 1e-3)
     N = Vector3f(0.0, 1.0, 0.0);
-  else if (cz < 1e-3)
+  else if (std::abs(intersection.z - origin.z) < 1e-3)
     N = Vector3f(0.0, 0.0, -1.0);
-  else if (fz < 1e-3)
+  else if (std::abs(intersection.z - top_corner.z) < 1e-3)
     N = Vector3f(0.0, 0.0, 1.0);
   
+  // Compute the reflection
   return Ray3f(intersection, -2*dot_product(ray.direction, N)*N+ray.direction);
 }
 
 std::ostream & operator<< (std::ostream &st, const Quad &q) {
-  st << "Quad: " << "\n- matter: "  << q.matter << "\n- origin: " << q.origin << "\n- width: " << q.width << "\n- height: " << q.height;
+  st << "Quad: " << "\n- matter: "  << q.matter << "\n- origin: " << q.origin << "\n- width: " << q.top_corner.x << "\n- height: " << q.top_corner.y << "\n- length: " << q.top_corner.z;
   return st;
 }

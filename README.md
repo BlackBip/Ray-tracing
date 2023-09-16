@@ -6,4 +6,4 @@ The file `Rapport.pdf` contains an comprehensive report of the project in French
 
 Some visuals :
 
-![ray casting](https://github.com/BlackBip/Ray-tracing/assets/32956632/f43967d2-b286-4689-b744-34f2d7a94ebb)
+![ray casting](https://github.com/BlackBip/Ray-tracing/assets/32956632/9e9ce5f2-165a-44b8-8182-3d8783eff6ff)
